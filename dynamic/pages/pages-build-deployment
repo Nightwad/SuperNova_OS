@@ -1,0 +1,34 @@
+name: pages-build-deployment
+on:
+  workflow_call:
+    inputs:
+      source:
+        required: false
+        type: string
+        default: '.'
+      destination:
+        required: false
+        type: string
+        default: 'public'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+      - name: Install dependencies
+        run: |
+          gem install jekyll bundler
+      - name: Build site with Jekyll
+        run: |
+          bundle exec jekyll build -s "${{ inputs.source }}" -d "${{ inputs.destination }}"
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: "${{ inputs.destination }}"
+      - name: Deploy to Pages
+        uses: actions/deploy-pages@v1
